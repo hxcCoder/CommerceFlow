@@ -1,4 +1,4 @@
 export enum ProductType {
-    DIGITAL = 'DIGITAL',
-    PHYSICAL = 'PHYSICAL',
+    Digital = 'DIGITAL',
+    Physical = 'PHYSICAL',
 }

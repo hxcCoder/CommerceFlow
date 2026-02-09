@@ -1,19 +1,23 @@
 export class OrderItem {
-    constructor(
-        public readonly productId: string,
-        public readonly quantity: number,
-        public readonly unitPrice: number
-) {
-if (quantity <= 0) {
-    throw new Error('OrderItem quantity must be greater than zero');
+    readonly productId: string;
+    readonly quantity: number;
+    readonly unitPrice: number;
+
+constructor(params: {
+    productId: string;
+    quantity: number;
+    unitPrice: number;
+}) {
+    if (params.quantity <= 0) {
+        throw new Error('OrderItem.quantity.mustBeGreaterThanZero');
     }
 
-    if (unitPrice < 0) {
-        throw new Error('OrderItem unitPrice cannot be negative');
-    }
+    this.productId = params.productId;
+    this.quantity = params.quantity;
+    this.unitPrice = params.unitPrice;
 }
 
-get total(): number {
-        return this.quantity * this.unitPrice;
-    }
+get subtotal(): number {
+    return this.quantity * this.unitPrice;
+}
 }

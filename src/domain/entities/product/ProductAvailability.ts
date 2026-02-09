@@ -1,4 +1,4 @@
 export enum ProductAvailability {
-    AVAILABLE = 'AVAILABLE',
-    UNAVAILABLE = 'UNAVAILABLE',
+    Available = 'AVAILABLE',
+    Unavailable = 'UNAVAILABLE',
 }

@@ -1,23 +1,17 @@
-export class OrderAlreadyPaid extends Error {
+export class OrderAlreadyPaidError extends Error {
     constructor() {
-        super('Order has already been paid');
-    }
+    super('Order.alreadyPaid');
+}
 }
 
-export class OrderNotPayable extends Error {
+export class OrderCannotBeFulfilledError extends Error {
     constructor() {
-        super('Order is not in a payable state');
-    }
+        super('Order.cannotBeFulfilledWithoutPayment');
+}
 }
 
-export class OrderNotFulfillable extends Error {
+export class OrderAlreadyFinalizedError extends Error {
     constructor() {
-        super('Order cannot be fulfilled without payment');
-    }
+        super('Order.isFinalized');
 }
-
-export class OrderAlreadyFinalized extends Error {
-    constructor() {
-        super('Order is already finalized');
-    }
 }

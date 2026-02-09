@@ -1,73 +1,61 @@
 import { OrderItem } from './OrderItem';
 import { OrderStatus } from './OrderStatus';
 import {
-    OrderAlreadyFinalized,
-    OrderAlreadyPaid,
-    OrderNotFulfillable,
-    OrderNotPayable,
+    OrderAlreadyFinalizedError,
+    OrderCannotBeFulfilledError,
 } from './OrderErrors';
-import { PaymentResult } from '../payment/PaymentResult';
-import { PaymentStatus } from '../payment/PaymentStatus';
 
 export class Order {
     private status: OrderStatus;
     private readonly items: OrderItem[];
     private readonly createdAt: Date;
 
-constructor(
-    public readonly id: string,
-    items: OrderItem[]
-) {
-    if (items.length === 0) {
-        throw new Error('Order must contain at least one item');
+    private constructor(items: OrderItem[]) {
+        this.items = items;
+        this.status = OrderStatus.Created;
+        this.createdAt = new Date();
     }
 
-    this.items = items;
-    this.status = OrderStatus.Created;
-    this.createdAt = new Date();
-}
-
-getStatus(): OrderStatus {
-    return this.status;
-}
-
-getItems(): OrderItem[] {
-    return [...this.items];
-}
-
-getTotalAmount(): number {
-    return this.items.reduce((sum, item) => sum + item.total, 0);
-}
-
-requestPayment(): void {
-    if (this.status !== OrderStatus.Created) {
-        throw new OrderNotPayable();
+    static create(items: OrderItem[]): Order {
+        if (items.length === 0) {
+            throw new Error('Order.mustHaveAtLeastOneItem');
+        }
+        return new Order(items);
     }
 
-    this.status = OrderStatus.PaymentPending;
-}
-
-applyPayment(result: PaymentResult): void {
-    if (this.status === OrderStatus.Paid) {
-        throw new OrderAlreadyPaid();
+    requestPayment(): void {
+        if (this.status !== OrderStatus.Created) {
+            throw new OrderAlreadyFinalizedError();
+        }
+        this.status = OrderStatus.PaymentPending;
     }
 
-    if (this.status === OrderStatus.Failed || this.status === OrderStatus.Fulfilled) {
-        throw new OrderAlreadyFinalized();
-    }
-
-    if (result.status === PaymentStatus.APPROVED) {
+    confirmPayment(): void {
+        if (this.status !== OrderStatus.PaymentPending) {
+            throw new Error('Order.paymentNotPending');
+        }
         this.status = OrderStatus.Paid;
-    } else if (result.status === PaymentStatus.REJECTED) {
+    }
+
+    fail(): void {
+        if (this.status === OrderStatus.Fulfilled) {
+            throw new Error('Order.alreadyFulfilled');
+        }
         this.status = OrderStatus.Failed;
     }
-}
 
-fulfill(): void {
-    if (this.status !== OrderStatus.Paid) {
-        throw new OrderNotFulfillable();
+    fulfill(): void {
+        if (this.status !== OrderStatus.Paid) {
+            throw new OrderCannotBeFulfilledError();
+        }
+        this.status = OrderStatus.Fulfilled;
     }
 
-    this.status = OrderStatus.Fulfilled;
-}
+    getTotalAmount(): number {
+        return this.items.reduce((sum, item) => sum + item.subtotal, 0);
+    }
+
+    getStatus(): OrderStatus {
+        return this.status;
+    }
 }
